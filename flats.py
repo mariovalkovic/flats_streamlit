@@ -47,6 +47,8 @@ def scraper():
             data_list.append(float(area))
         
         st.subheader('Page ' + str(page) + ' done')
+        my_bar = st.progress(0)
+        my_bar.progress(int(page/pages*100))
 
     # Optional: sorting and printing values:
     # area_list.sort()
