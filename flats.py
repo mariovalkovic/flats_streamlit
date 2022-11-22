@@ -11,11 +11,11 @@ st.title('Flats')
 st.markdown("""This app retrieves apartments in Bratislava based on the number of rooms""")
 st.sidebar.header('Options')
 rooms = st.sidebar.slider('Rooms', min_value=1, max_value=4, value=3)
-pages_scrape = st.sidebar.slider('Pages to Scrape', min_value=1, max_value=6, value=4)
+pages_scrape = st.sidebar.slider('Pages to Scrape', min_value=1, max_value=6, value=6)
 
 # Empty data list:
 data_list = []
-pages = 4
+pages = 6
 
 def scraper():
     # Cleaning old data:
