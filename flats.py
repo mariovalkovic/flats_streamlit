@@ -8,18 +8,29 @@ import matplotlib.pyplot as plt
 import math
 
 st.title('Flats')
-st.markdown("""This app retrieves apartmets in Bratislava based on the number of rooms""")
-st.sidebar.header('Number of rooms')
+st.markdown("""This app retrieves apartments in Bratislava based on the number of rooms""")
+st.sidebar.header('Options')
+rooms = st.sidebar.slider('Rooms', min_value=1, max_value=4, value=3)
+pages_scrape = st.sidebar.slider('Pages to Scrape', min_value=1, max_value=6, value=4)
 
+# Empty data list:
+data_list = []
+pages = 4
 
 def scraper():
-    # Number of pages:
-    r = requests.get(f'https://www.byty.sk/bratislava/3-izbove-byty/?p[param7]=12&p[limit]=60')
-    soup = BeautifulSoup(r.content, 'lxml')
-    pages = int(soup.find(class_= 'posledne box-no-shadow s').string)
+    # Cleaning old data:
+    global data_list, rooms, pages
+    data_list.clear()
 
-    # Empty list:
-    data_list = []
+    # Number of pages:
+    r = requests.get(f'https://www.byty.sk/bratislava/{rooms}-izbove-byty/?p[param7]=12&p[limit]=60')
+    soup = BeautifulSoup(r.content, 'lxml')
+    pages_available = int(soup.find(class_= 'posledne box-no-shadow s').string)
+
+    if pages_available < pages_scrape:
+        pages = pages_available
+    else:
+        pages = pages_scrape
 
     # Iteration over pages + scraping + cleanup + saving to list:
     for page in range(1, pages + 1):
@@ -34,15 +45,21 @@ def scraper():
             except ValueError:
                 pass
             data_list.append(float(area))
+        
+        st.subheader('Page ' + str(page) + ' done')
 
     # Optional: sorting and printing values:
     # area_list.sort()
     # print(area_list)
 
 def histogram():
-    # Reading saved data:
-    data = read_csv('3room.csv')
-    data_list = data['column'].tolist()
+    global data_list, pages
+    # Reading data:
+    if len(data_list) == 0:
+        data = read_csv('3room.csv')
+        data_list = data['column'].tolist()
+    else:
+        pass
 
     # Defining bins for plot:
     start = math.floor(min(data_list)/10)*10
@@ -54,7 +71,7 @@ def histogram():
 
     plt.xlabel('area in square meters')
     plt.ylabel('count')
-    plt.title('3 room apartments')
+    plt.title(str(rooms) + ' room apartments' + ' & ' + str(pages) + ' pages scraped')
 
     return st.pyplot(fig)
     # plt.savefig('3rooms.png')
@@ -62,6 +79,6 @@ def histogram():
 
 histogram()
 
-if st.button('Scrape'):
+if st.sidebar.button('Scrape'):
     scraper()
     histogram()
