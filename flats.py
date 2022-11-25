@@ -11,9 +11,11 @@ st.title('Flats')
 st.markdown("""This app retrieves apartments in Bratislava based on the number of rooms""")
 st.sidebar.header('Options')
 rooms = st.sidebar.slider('Rooms', min_value=1, max_value=4, value=3)
-pages_scrape = st.sidebar.slider('Pages to Scrape', min_value=1, max_value=6, value=6)
+pages_scrape = st.sidebar.slider('Pages to Scrape', min_value=1, max_value=10, value=6)
 
 # Empty data list:
+my_bar = 0
+my_text = 0
 data_list = []
 pages = 6
 
@@ -34,7 +36,7 @@ def scraper():
 
     # Iteration over pages + scraping + cleanup + saving to list:
     for page in range(1, pages + 1):
-        r = requests.get(f'https://www.byty.sk/bratislava/3-izbove-byty/?p[param7]=12&p[limit]=60&p[page]={page}')
+        r = requests.get(f'https://www.byty.sk/bratislava/{rooms}-izbove-byty/?p[param7]=12&p[limit]=60&p[page]={page}')
         soup = BeautifulSoup(r.content, 'lxml')
 
         items = soup.find_all('ul', class_='condition-info')
@@ -46,8 +48,16 @@ def scraper():
                 pass
             data_list.append(float(area))
         
-        st.subheader('Page ' + str(page) + ' done')
+        # my_text.empty()
+        global my_bar, my_text
+        if my_bar != 0:
+            my_bar.empty()
+        # if my_text !=0:
+        #     my_text.empty()
+        
+        my_text = ('Page ' + str(page) + ' done')
         my_bar = st.progress(0)
+        # st.subheader(my_text)
         my_bar.progress(int(page/pages*100))
 
     # Optional: sorting and printing values:
@@ -79,8 +89,15 @@ def histogram():
     # plt.savefig('3rooms.png')
     # plt.show()
 
-histogram()
+default = st.checkbox('Show example', value = True)
+load = st.sidebar.button('Scrape')
 
-if st.sidebar.button('Scrape'):
+if default:
+    histogram()
+else:
+    st.sidebar.header('Choose options and hit Scrape')
+
+if load:
+    st.markdown('I am scraping ' + str(pages) + ' pages right now. That is ' + str(pages*60) + ' flats')
     scraper()
     histogram()
