@@ -4,11 +4,13 @@ from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
 from pandas import *
-import matplotlib.pyplot as plt
+import plotly.express as px
 import math
 
-st.title('Flats')
-st.markdown("""This app retrieves apartments in Bratislava based on the number of rooms""")
+st.set_page_config(page_title='Apartments by size', layout='wide')
+
+st.title('Apartments by size')
+st.markdown("""This app is scraping sizes of new apartments for sale in Bratislava from byty.sk""")
 st.sidebar.header('Options')
 rooms = st.sidebar.slider('Rooms', min_value=1, max_value=4, value=3)
 pages_scrape = st.sidebar.slider('Pages to Scrape', min_value=1, max_value=10, value=6)
@@ -73,21 +75,11 @@ def histogram():
     else:
         pass
 
-    # Defining bins for plot:
-    start = math.floor(min(data_list)/10)*10
-    end = math.ceil(max(data_list)/10)*10 + 10
-
     # Graphics and ploting:
-    fig = plt.figure()
-    plt.hist(data_list, bins=np.arange(start, end, 10), ec = 'white')
-
-    plt.xlabel('area in square meters')
-    plt.ylabel('count')
-    plt.title(str(rooms) + ' room apartments' + ' & ' + str(pages) + ' pages scraped')
-
-    return st.pyplot(fig)
-    # plt.savefig('3rooms.png')
-    # plt.show()
+    fig = px.histogram(data_list, text_auto=True)
+    fig.update_traces(marker=dict(color='rgb(0, 150, 255)'), textposition='inside')
+    fig.update_layout(bargap=0.1, uniformtext_minsize=10, uniformtext_mode='hide', showlegend=False)
+    return st.plotly_chart(fig)
 
 default = st.checkbox('Show example', value = True)
 load = st.sidebar.button('Scrape')
@@ -98,6 +90,8 @@ else:
     st.sidebar.header('Choose options and hit Scrape')
 
 if load:
-    st.markdown('I am scraping ' + str(pages) + ' pages right now. That is ' + str(pages*60) + ' flats')
     scraper()
     histogram()
+
+
+# save scraped df, open rollup of 4 different CSVs that are saved, add title to fig
