@@ -15,7 +15,7 @@ area_list = []
 
 # Iteration over pages + scraping + cleanup + saving to list:
 for page in range(1, pages + 1):
-    r = requests.get(f'https://www.byty.sk/bratislava/3-izbove-byty/?p[param7]=12&p[limit]=60&p[page]={page}')
+    r = requests.get(f'https://www.byty.sk/bratislava/4-izbove-byty/?p[param7]=12&p[limit]=60&p[page]={page}')
     soup = BeautifulSoup(r.content, 'lxml')
 
     items = soup.find_all('ul', class_='condition-info')
@@ -33,4 +33,4 @@ print(area_list)
 
 # Saving to csv:
 df = pd.DataFrame(area_list, columns=["column"])
-df.to_csv('3room.csv', index=False)
+df.to_csv('4rooms.csv', index=False)
